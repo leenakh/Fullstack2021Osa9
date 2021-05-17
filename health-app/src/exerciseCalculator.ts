@@ -1,30 +1,35 @@
-console.log('hello typescript')
-
-type Message = 'Underweight (unhealthy weigth)' | 'Normal (healthy weight)' | 'Overweight (unhealthy weight)' | 'Obese (very unhealthy weight)';
-
-interface CalculateValues {
-    value1: number;
-    value2: number;
+interface ResultObject {
+    periodLength: number;
+    trainingDays: number;
+    success: boolean;
+    rating: number;
+    ratingDescription: string;
+    target: number;
+    average: number
 }
 
-const parseArguments = (args: Array<string>): CalculateValues => {
+interface CalculateExerciseValues {
+    [index: number]: number
+}
+
+const parseExerciseArguments = (args: Array<string>): CalculateExerciseValues => {
     if (args.length < 4) throw new Error('not enough arguments');
     if (args.length > 4) throw new Error('too many arguments');
-    if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
-        return {
-            value1: Number(args[2]),
-            value2: Number(args[3])
-        }
+    if (!isNaN(Number(args[2])) && !isNaN(Number(args[3])))
+    {
+        const valueArray: CalculateExerciseValues = [Number(args[2]), Number(args[3])]
+        ;
+        return valueArray;
     } else {
         throw new Error('provided values were not numbers');
     }
 }
 
-const calculateBmi = (weight: number, height: number): Message => {
-    const size: number = height * height / 10000
-    const result: number = Math.floor(weight / size)
+const calculateExercise = (values: CalculateExerciseValues): string => {
+    const size: number = values[1] * values[1] / 10000
+    const result: number = Math.floor(values[0] / size)
     switch (true) {
-        case height <= 0 || weight <= 0:
+        case values[0] <= 0 || values[1] <= 0:
             throw new Error('invalid arguments')
         case result < 18:
             return 'Underweight (unhealthy weigth)'
@@ -45,8 +50,8 @@ try {
 }
 
 try {
-    const { value1, value2 } = parseArguments(process.argv);
-    console.log(calculateBmi(value1, value2));
+    const parsed = parseExerciseArguments(process.argv);
+    console.log(calculateExercise(parsed));
 } catch (error) {
     console.log('Something went wrong:', error.message);
 }
