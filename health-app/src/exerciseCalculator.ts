@@ -1,9 +1,11 @@
+type Feedback = 'Well done!' | 'Not too bad.' | 'You can do better than this.'
+
 interface ResultObject {
     periodLength: number;
     trainingDays: number;
     success: boolean;
     rating: number;
-    ratingDescription: string;
+    ratingDescription: Feedback;
     target: number;
     average: number
 }
@@ -14,34 +16,91 @@ interface CalculateExerciseValues {
 
 const parseExerciseArguments = (args: Array<string>): CalculateExerciseValues => {
     if (args.length < 4) throw new Error('not enough arguments');
-    if (args.length > 4) throw new Error('too many arguments');
-    if (!isNaN(Number(args[2])) && !isNaN(Number(args[3])))
     {
-        const valueArray: CalculateExerciseValues = [Number(args[2]), Number(args[3])]
-        ;
+        let values: Array<number> = []
+        let i = 2
+        for (i = 2; i < args.length; i++) {
+            let v = Number(args[i])
+            if (!isNaN(v)) {
+                values = values.concat(v)
+            }
+            else throw new Error('provided value is not a number')
+        }
+        const valueArray: CalculateExerciseValues = values;
         return valueArray;
-    } else {
-        throw new Error('provided values were not numbers');
     }
 }
 
-const calculateExercise = (values: CalculateExerciseValues): string => {
-    const size: number = values[1] * values[1] / 10000
-    const result: number = Math.floor(values[0] / size)
-    switch (true) {
-        case values[0] <= 0 || values[1] <= 0:
-            throw new Error('invalid arguments')
-        case result < 18:
-            return 'Underweight (unhealthy weigth)'
-        case result < 25 && result >= 18:
-            return 'Normal (healthy weight)'
-        case result >= 25 && result < 30:
-            return 'Overweight (unhealthy weight)'
-        case result >= 30:
-            return 'Obese (very unhealthy weight)'
-        default:
-            throw new Error(':(')
+const isNotZero = (value: number) => {
+    return value > 0
+}
+
+const averageTrainingTime = (hours: Array<number>, days: number): number => {
+    let i = 0;
+    let sum = 0;
+    for (i = 0; i < hours.length; i++) {
+        sum += hours[i]
     }
+    return sum / days
+}
+
+const calculateRating = (average: number): number => {
+    switch (true) {
+        case average < 1:
+            return 1
+        case average < 2 && average > 1:
+            return 2
+        case average > 2:
+            return 3
+        default:
+            throw new Error('invalid argument')
+    }
+}
+
+const determineSuccess = (rating: number, target: number): boolean => {
+    switch(true) {
+        case rating < target:
+            return false
+        case rating >= target:
+            return true
+        default:
+            throw new Error('invalid arguments')
+    }
+}
+
+const ratingFeedback = (rating: number): Feedback => {
+    switch (rating) {
+        case 1:
+            return 'You can do better than this.'
+        case 2:
+            return 'Not too bad.'
+        case 3:
+            return 'Well done!'
+        default:
+            throw new Error('invalid argument')
+    }
+}
+
+const calculateExercise = (values: CalculateExerciseValues): ResultObject => {
+    const valuesArray: Array<number> = Array.prototype.slice.call(values);
+    const target: number = valuesArray.shift();
+    const periodLength: number = valuesArray.length;
+    let trainingDaysArray: Array<number> = Array.prototype.slice.call(valuesArray).filter(isNotZero);
+    const trainingDays: number = trainingDaysArray.length;
+    const average: number = averageTrainingTime(trainingDaysArray, periodLength);
+    const rating: number = calculateRating(average)
+    const ratingDescription: Feedback = ratingFeedback(rating);
+    const success: boolean = determineSuccess(rating, target)
+    return {
+        periodLength,
+        trainingDays,
+        success,
+        rating,
+        ratingDescription,
+        target,
+        average
+    }
+
 }
 try {
     console.log('processed')
