@@ -1,4 +1,4 @@
-type Feedback = 'Well done!' | 'Not too bad.' | 'You can do better than this.'
+type Feedback = 'Excellent!' | 'Well done!' | 'You can do better than that.'
 
 interface ResultObject {
     periodLength: number;
@@ -21,10 +21,10 @@ const parseExerciseArguments = (args: Array<string>): CalculateExerciseValues =>
         let i = 2
         for (i = 2; i < args.length; i++) {
             let v = Number(args[i])
-            if (!isNaN(v)) {
+            if (!isNaN(v) && v >= 0) {
                 values = values.concat(v)
             }
-            else throw new Error('provided value is not a number')
+            else throw new Error('provided value is invalid')
         }
         const valueArray: CalculateExerciseValues = values;
         return valueArray;
@@ -44,24 +44,24 @@ const averageTrainingTime = (hours: Array<number>, days: number): number => {
     return sum / days
 }
 
-const calculateRating = (average: number): number => {
+const calculateRating = (average: number, target: number): number => {
     switch (true) {
-        case average < 1:
+        case average < target * 0.9:
             return 1
-        case average < 2 && average > 1:
+        case average >= target * 0.9 && average < target * 1.2:
             return 2
-        case average > 2:
+        case average >= target * 1.2:
             return 3
         default:
-            throw new Error('invalid argument')
+            throw new Error('invalid arguments')
     }
 }
 
 const determineSuccess = (rating: number, target: number): boolean => {
     switch(true) {
-        case rating < target:
+        case rating < 2:
             return false
-        case rating >= target:
+        case rating >= 2:
             return true
         default:
             throw new Error('invalid arguments')
@@ -71,11 +71,11 @@ const determineSuccess = (rating: number, target: number): boolean => {
 const ratingFeedback = (rating: number): Feedback => {
     switch (rating) {
         case 1:
-            return 'You can do better than this.'
+            return 'You can do better than that.'
         case 2:
-            return 'Not too bad.'
-        case 3:
             return 'Well done!'
+        case 3:
+            return 'Excellent!'
         default:
             throw new Error('invalid argument')
     }
@@ -88,9 +88,9 @@ const calculateExercise = (values: CalculateExerciseValues): ResultObject => {
     let trainingDaysArray: Array<number> = Array.prototype.slice.call(valuesArray).filter(isNotZero);
     const trainingDays: number = trainingDaysArray.length;
     const average: number = averageTrainingTime(trainingDaysArray, periodLength);
-    const rating: number = calculateRating(average)
+    const rating: number = calculateRating(average, target);
     const ratingDescription: Feedback = ratingFeedback(rating);
-    const success: boolean = determineSuccess(rating, target)
+    const success: boolean = determineSuccess(rating, target);
     return {
         periodLength,
         trainingDays,
@@ -100,12 +100,6 @@ const calculateExercise = (values: CalculateExerciseValues): ResultObject => {
         target,
         average
     }
-
-}
-try {
-    console.log('processed')
-} catch (error) {
-    console.log('something went wrong:', error.message);
 }
 
 try {
