@@ -10,11 +10,16 @@ interface ResultObject {
     average: number
 }
 
-interface CalculateExerciseValues {
+export interface RequestObject {
+    daily_exercises: Array<number>;
+    target: number
+}
+
+export interface CalculateExerciseValues {
     [index: number]: number
 }
 
-const parseExerciseArguments = (args: Array<string>): CalculateExerciseValues => {
+export const parseExerciseArguments = (args: Array<string>): CalculateExerciseValues => {
     if (args.length < 4) throw new Error('not enough arguments');
     {
         let values: Array<number> = [];
@@ -81,14 +86,10 @@ const ratingFeedback = (rating: number): Feedback => {
     }
 };
 
-const calculateExercise = (values: CalculateExerciseValues): ResultObject => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const valuesArray: Array<number> = Array.prototype.slice.call(values);
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    const target: number = Number(valuesArray.shift());
-    const periodLength: number = valuesArray.length;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const trainingDaysArray: Array<number> = Array.prototype.slice.call(valuesArray).filter(isNotZero);
+const calculateExercise = (values: RequestObject): ResultObject => {
+    const target: number = values.target;
+    const periodLength: number = values.daily_exercises.length;
+    const trainingDaysArray: Array<number> = values.daily_exercises.filter(isNotZero);
     const trainingDays: number = trainingDaysArray.length;
     const average: number = averageTrainingTime(trainingDaysArray, periodLength);
     const rating: number = calculateRating(average, target);
@@ -105,11 +106,12 @@ const calculateExercise = (values: CalculateExerciseValues): ResultObject => {
     };
 };
 
-try {
+/* try {
     const parsed = parseExerciseArguments(process.argv);
     console.log(calculateExercise(parsed));
 } catch (error) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     console.log('Something went wrong:', error.message);
-}
+} */
 
+export default calculateExercise;
