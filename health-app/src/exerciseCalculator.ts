@@ -1,4 +1,4 @@
-type Feedback = 'Excellent!' | 'Well done!' | 'You can do better than that.'
+type Feedback = 'Excellent!' | 'Well done!' | 'You can do better than that.';
 
 interface ResultObject {
     periodLength: number;
@@ -17,80 +17,83 @@ interface CalculateExerciseValues {
 const parseExerciseArguments = (args: Array<string>): CalculateExerciseValues => {
     if (args.length < 4) throw new Error('not enough arguments');
     {
-        let values: Array<number> = []
-        let i = 2
+        let values: Array<number> = [];
+        let i = 2;
         for (i = 2; i < args.length; i++) {
-            let v = Number(args[i])
+            const v = Number(args[i]);
             if (!isNaN(v) && v >= 0) {
-                values = values.concat(v)
+                values = values.concat(v);
             }
-            else throw new Error('provided value is invalid')
+            else throw new Error('provided value is invalid');
         }
         const valueArray: CalculateExerciseValues = values;
         return valueArray;
     }
-}
+};
 
 const isNotZero = (value: number) => {
-    return value > 0
-}
+    return value > 0;
+};
 
 const averageTrainingTime = (hours: Array<number>, days: number): number => {
     let i = 0;
     let sum = 0;
     for (i = 0; i < hours.length; i++) {
-        sum += hours[i]
+        sum += hours[i];
     }
-    return sum / days
-}
+    return sum / days;
+};
 
 const calculateRating = (average: number, target: number): number => {
     switch (true) {
         case average < target * 0.9:
-            return 1
+            return 1;
         case average >= target * 0.9 && average < target * 1.2:
-            return 2
+            return 2;
         case average >= target * 1.2:
-            return 3
+            return 3;
         default:
-            throw new Error('invalid arguments')
+            throw new Error('invalid arguments');
     }
-}
+};
 
-const determineSuccess = (rating: number, target: number): boolean => {
+const determineSuccess = (rating: number): boolean => {
     switch(true) {
         case rating < 2:
-            return false
+            return false;
         case rating >= 2:
-            return true
+            return true;
         default:
-            throw new Error('invalid arguments')
+            throw new Error('invalid arguments');
     }
-}
+};
 
 const ratingFeedback = (rating: number): Feedback => {
     switch (rating) {
         case 1:
-            return 'You can do better than that.'
+            return 'You can do better than that.';
         case 2:
-            return 'Well done!'
+            return 'Well done!';
         case 3:
-            return 'Excellent!'
+            return 'Excellent!';
         default:
-            throw new Error('invalid argument')
+            throw new Error('invalid argument');
     }
-}
+};
 
 const calculateExercise = (values: CalculateExerciseValues): ResultObject => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const valuesArray: Array<number> = Array.prototype.slice.call(values);
-    const target: number = valuesArray.shift();
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+    const target: number = Number(valuesArray.shift());
     const periodLength: number = valuesArray.length;
-    let trainingDaysArray: Array<number> = Array.prototype.slice.call(valuesArray).filter(isNotZero);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const trainingDaysArray: Array<number> = Array.prototype.slice.call(valuesArray).filter(isNotZero);
     const trainingDays: number = trainingDaysArray.length;
     const average: number = averageTrainingTime(trainingDaysArray, periodLength);
     const rating: number = calculateRating(average, target);
     const ratingDescription: Feedback = ratingFeedback(rating);
-    const success: boolean = determineSuccess(rating, target);
+    const success: boolean = determineSuccess(rating);
     return {
         periodLength,
         trainingDays,
@@ -99,13 +102,14 @@ const calculateExercise = (values: CalculateExerciseValues): ResultObject => {
         ratingDescription,
         target,
         average
-    }
-}
+    };
+};
 
 try {
     const parsed = parseExerciseArguments(process.argv);
     console.log(calculateExercise(parsed));
 } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     console.log('Something went wrong:', error.message);
 }
 
