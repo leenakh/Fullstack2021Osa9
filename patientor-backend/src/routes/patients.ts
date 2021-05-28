@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import express from 'express';
 import patientService from '../services/patientService';
 
@@ -8,8 +9,20 @@ router.get('/', (_req, res) => {
     res.send(patientService.getPatients());
 });
 
-router.post('/', (_req, res) => {
-    res.send('Saving patient record.');
+router.post('/', (req, res) => {
+    const { name, dateOfBirth, gender, ssn, occupation } = req.body;
+    try {
+        const newPatient = patientService.addPatient({
+            name,
+            dateOfBirth,
+            ssn,
+            gender,
+            occupation
+        });
+        res.json(newPatient);
+    } catch (error) {
+        res.status(400).json({error: error.message});
+    }
 });
 
 export default router;
