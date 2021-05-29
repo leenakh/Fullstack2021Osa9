@@ -1,14 +1,12 @@
 import React from 'react';
+import { CoursePart } from './App'
+import Part from './Part'
 
-interface CoursePart {
-    name: string;
-    exerciseCount: number;
-}
 
 const Content = ({ parts }: { parts: Array<CoursePart> }) => {
     return (
         <div>
-            {parts.map(p => <p key={p.name}>{p.name} {p.exerciseCount}</p>)}
+            {parts.map(p => <div key={p.name}><Part part={p} /></div>)}
         </div>
     )
 };
