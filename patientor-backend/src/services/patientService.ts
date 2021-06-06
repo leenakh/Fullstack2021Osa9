@@ -4,10 +4,15 @@ import toNewPatient from '../utils';
 import { v1 as uuid } from 'uuid';
 
 const getPatients = (): NonSensitivePatient[] => {
-    return patientData.map(({ id, name, dateOfBirth, gender, occupation }) => ({
+    return patientData.map(({ id, name, dateOfBirth, gender, occupation, entries }) => ({
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        id, name, dateOfBirth, gender, occupation
+        id, name, dateOfBirth, gender, occupation, entries
     }));
+};
+
+const getPatientById = (id: string): NonSensitivePatient | undefined => {
+    const patientToReturn = patientData.find(p => p.id === id);
+    return patientToReturn;
 };
 
 const addPatient = (patient: NewPatient): NonSensitivePatient => {
@@ -30,5 +35,6 @@ const addPatient = (patient: NewPatient): NonSensitivePatient => {
 
 export default {
     getPatients,
+    getPatientById,
     addPatient
 };

@@ -9,15 +9,26 @@ router.get('/', (_req, res) => {
     res.send(patientService.getPatients());
 });
 
+router.get('/:id', (req, res) => {
+        console.log('fetching one patient');
+        const patient = patientService.getPatientById(req.params.id);
+        if (patient) {
+        res.send(patient);
+        } else {
+        res.status(404).json(({error: 'patient not found'}));
+    }
+});
+
 router.post('/', (req, res) => {
-    const { name, dateOfBirth, gender, ssn, occupation } = req.body;
+    const { name, dateOfBirth, gender, ssn, occupation, entries } = req.body;
     try {
         const newPatient = patientService.addPatient({
             name,
             dateOfBirth,
             ssn,
             gender,
-            occupation
+            occupation,
+            entries
         });
         res.json(newPatient);
     } catch (error) {
