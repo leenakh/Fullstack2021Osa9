@@ -1,4 +1,4 @@
-import { NewPatient, Gender } from './types';
+import { NewPatient, Gender, Entry, Type } from './types';
 
 const isString = (text: unknown): text is string => {
     return typeof text === 'string' || text instanceof String;
@@ -24,9 +24,9 @@ const isSsn = (ssn: unknown): boolean => {
     const pattern = /\d\d\d\d\d\d(\+|-|A)\d\d\d\w/;
     const patternX = /_/;
     if (isString(ssn) && pattern.test(String(ssn)) && !patternX.test(String(ssn)) && String(ssn).length === 11) {
-        const day = Number(String(ssn).substring(0,2));
-        const month = Number(String(ssn).substring(2,4));
-        const year = Number(String(ssn).substring(4,6));
+        const day = Number(String(ssn).substring(0, 2));
+        const month = Number(String(ssn).substring(2, 4));
+        const year = Number(String(ssn).substring(4, 6));
         if (day > 0 && day < 32 && month > 0 && month < 13 && year >= 0 && year < 100) {
             return true;
         }
@@ -42,6 +42,15 @@ const isName = (name: unknown): boolean => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isGender = (param: any): param is Gender => {
     return Object.values(Gender).includes(param);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isEntry = (entry: any): entry is Entry => {
+return Object.values(Type).includes(entry.type);
+/*     if (entry.type) {
+        return true;
+    }
+    return false; */
 };
 
 const parseName = (name: unknown): string => {
@@ -80,6 +89,15 @@ const parseOccupation = (occupation: unknown): string => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const parseEntries = (entries: []): Array<Entry> => {
+    entries.forEach(element => {
+        if (!isEntry(element))
+            throw new Error('Incorrect or missing entry');
+    });
+    return entries;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toNewPatient = (object: any): NewPatient => {
     const newPatient: NewPatient = {
         name: parseName(object.name),
@@ -87,7 +105,7 @@ const toNewPatient = (object: any): NewPatient => {
         ssn: parseSsn(object.ssn),
         gender: parseGender(object.gender),
         occupation: parseOccupation(object.occupation),
-        entries: []
+        entries: parseEntries(object.entries)
     };
     return newPatient;
 };
