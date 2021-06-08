@@ -5,12 +5,10 @@ import patientService from '../services/patientService';
 const router = express.Router();
 
 router.get('/', (_req, res) => {
-    console.log('Fetching patient records.');
     res.send(patientService.getPatients());
 });
 
 router.get('/:id', (req, res) => {
-        console.log('fetching one patient');
         const patient = patientService.getPatientById(req.params.id);
         if (patient) {
         res.send(patient);

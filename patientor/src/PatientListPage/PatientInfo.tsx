@@ -1,5 +1,5 @@
 import React from "react";
-import { Entry, Gender, Patient } from "../types";
+import { Diagnosis, Entry, Gender, Patient } from "../types";
 import { useParams } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import { apiBaseUrl } from "../constants";
@@ -32,14 +32,19 @@ const ShowEntry = ({ entry }: { entry: Entry }) => {
     );
 };
 
+const ShowDiagnosis = ({code}: {code: string}) => {
+    const [{ diagnoses }, ] = useStateValue();
+    const diagnosis = Object.values(diagnoses).filter((diagnosis: Diagnosis) => diagnosis.code === code);
+    return (<span>{diagnosis[0].name}</span>);
+};
+
 const ShowCodes = ({entry}: {entry: Entry}) => {
     if (entry.diagnosisCodes) {
         return (
             <ul>
-            {entry.diagnosisCodes.map(d => <li key={d}>{d}</li>)}
+            {entry.diagnosisCodes.map(d => <li key={d}>{d}  <ShowDiagnosis code={d}/></li>)}
             </ul>
         );
-        
     }
     return null;
 };
@@ -60,7 +65,8 @@ const PatientInfo = () => {
             <div><h3>{patient.name}    <ShowGender gender={patient.gender} /></h3></div>
             <div>Born: {patient.dateOfBirth}</div>
             <div>Occupation: {patient.occupation}</div>
-            <div>Entries: {patient.entries.map(e => <div key={e.id}><ShowEntry key={e.id} entry={e} /> <ShowCodes entry={e} /></div>)}</div>
+            <br />
+            <div><h5>Entries: </h5>{patient.entries.map(e => <div key={e.id}><ShowEntry key={e.id} entry={e} /> <ShowCodes entry={e} /></div>)}</div>
         </div>);
     }
     return null;
