@@ -1,4 +1,4 @@
-import { NewPatient, Gender, Entry, Type } from './types';
+import { NewPatient, Gender, BaseEntry, Entry, Type, Discharge, HealthCheckRating, SickLeave } from './types';
 
 const isString = (text: unknown): text is string => {
     return typeof text === 'string' || text instanceof String;
@@ -46,11 +46,13 @@ const isGender = (param: any): param is Gender => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isEntry = (entry: any): entry is Entry => {
-return Object.values(Type).includes(entry.type);
-/*     if (entry.type) {
+    if (Object.values(Type).includes(entry.type)
+        && entry.description
+        && entry.date
+        && entry.specialist) {
         return true;
     }
-    return false; */
+    return false;
 };
 
 const parseName = (name: unknown): string => {
@@ -97,8 +99,118 @@ const parseEntries = (entries: []): Array<Entry> => {
     return entries;
 };
 
+const parseId = (id: unknown): string => {
+    if (!id || !isString(id)) {
+        throw new Error('invalid id');
+    }
+    return id;
+};
+
+const parseDescription = (description: unknown): string => {
+    if (!description || !isString(description)) {
+        throw new Error('invalid description');
+    }
+    return description;
+};
+
+const parseDate = (date: unknown): string => {
+    if (!date || !isDate(date)) {
+        throw new Error('invalid date');
+    }
+    return String(date);
+};
+
+const parseSpecialist = (specialist: unknown): string => {
+    if (!specialist || !isString(specialist)) {
+        throw new Error('invalid specialist');
+    }
+    return specialist;
+};
+
+const parseDiagnosisCodes = (codes: string[]): string[] => {
+    codes.forEach(element => {
+        if (!isString(element))
+            throw new Error('invalid codes');
+    });
+    return codes;
+};
+
+const parseDischarge = (discharge: Discharge): Discharge => {
+    if (!discharge || !discharge.date || !discharge.criteria) {
+        throw new Error('invalid discharge');
+    }
+    return discharge;
+};
+
+const parseHealthCheckRating = (rating: HealthCheckRating): HealthCheckRating => {
+    if (!rating) {
+        throw new Error('invalid rating');
+    }
+    return rating;
+};
+
+const parseEmployerName = (name: string): string => {
+    if (!name || !isString(name)) {
+        throw new Error('invalid employername');
+    }
+    return name;
+};
+
+const parseSickLeave = (sickLeave: SickLeave): SickLeave => {
+    if (!sickLeave || !sickLeave.endDate || !sickLeave.startDate) {
+        throw new Error('invalid sickleave');
+    }
+    return sickLeave;
+};
+
+const assertNever = (value: unknown): never => {
+    throw new Error(`Unhandled discrimination union member: ${JSON.stringify(value)}`);
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toNewPatient = (object: any): NewPatient => {
+export const toNewEntry = (object: any): Entry => {
+    if (!object.type || !isEntry(object)) {
+        throw new Error('invalid entry (type)');
+    }
+    const entry: BaseEntry = {
+        id: parseId(object.id),
+        description: parseDescription(object.description),
+        date: parseDate(object.date),
+        specialist: parseSpecialist(object.specialist)
+    };
+    if (object.diagnosisCodes) {
+        entry.diagnosisCodes = parseDiagnosisCodes(object.diagnosisCodes);
+    }
+    switch (object.type) {
+        case 'Hospital':
+            return {
+                ...entry,
+                type: 'Hospital',
+                discharge: parseDischarge(object.discharge)
+            };
+        case 'HealthCheck':
+            return {
+                ...entry,
+                type: 'HealthCheck',
+                healthCheckRating: parseHealthCheckRating(object.healthCheckRating)
+            };
+        case 'OccupationalHealthcare':
+            const entryToReturn: Entry = {
+                ...entry,
+                type: 'OccupationalHealthcare',
+                employerName: parseEmployerName(object.employerName)
+            };
+            if (object.sickLeave) {
+                entryToReturn.sickLeave = parseSickLeave(object.sickLeave);
+            }
+            return entryToReturn;
+        default:
+            return assertNever(object);
+    }
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const toNewPatient = (object: any): NewPatient => {
     const newPatient: NewPatient = {
         name: parseName(object.name),
         dateOfBirth: parseDateOfBirth(object.dateOfBirth),
@@ -109,5 +221,3 @@ const toNewPatient = (object: any): NewPatient => {
     };
     return newPatient;
 };
-
-export default toNewPatient;

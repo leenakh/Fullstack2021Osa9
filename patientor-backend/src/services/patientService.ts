@@ -1,6 +1,6 @@
 import patientData from '../data/patients';
-import { NonSensitivePatient, NewPatient, Patient } from '../types';
-import toNewPatient from '../utils';
+import { NonSensitivePatient, NewPatient, Patient, Entry } from '../types';
+import { toNewPatient, toNewEntry } from '../utils';
 import { v1 as uuid } from 'uuid';
 
 const getPatients = (): NonSensitivePatient[] => {
@@ -12,20 +12,20 @@ const getPatients = (): NonSensitivePatient[] => {
 
 const getPatientById = (id: string): Patient | undefined => {
     const patient = patientData.find(p => p.id === id);
-/*     const patientToReturn = {
-        ...patient,
-        entries: patient.entries.map({... Entry})
-    }; */
+    /*     const patientToReturn = {
+            ...patient,
+            entries: patient.entries.map({... Entry})
+        }; */
     return patient;
 };
 
 const addPatient = (patient: NewPatient): NonSensitivePatient => {
     const id = uuid();
-/*     const newPatient = {
-        id,
-        ...patient
-    }; */
-    const validatedPatient = toNewPatient(patient);
+    /*     const newPatient = {
+            id,
+            ...patient
+        }; */
+    const validatedPatient: NewPatient = toNewPatient(patient);
     const patientToAdd = {
         id,
         ...validatedPatient
@@ -41,8 +41,34 @@ const addPatient = (patient: NewPatient): NonSensitivePatient => {
     return patientToReturn;
 };
 
+const addEntry = (id: string, entry: Entry): Patient | undefined => {
+    const patient = patientData.find(p => p.id === id);
+    if (!patient) {
+        throw new Error('patient missing');
+    }
+    const entryId = uuid();
+    const entryToAdd: Entry = {
+        ...entry,
+        id: entryId
+    };
+    console.log(entryToAdd);
+    const newEntry = toNewEntry(entryToAdd);
+    if (!newEntry) {
+        throw new Error('entry missing');
+    }
+    const entries = patient.entries.concat(newEntry);
+    const patientToAdd: Patient = {
+        ...patient,
+        entries
+    };
+    patientData.map(p => p.id === id ? patientToAdd : p);
+    return patientToAdd;
+
+};
+
 export default {
     getPatients,
     getPatientById,
-    addPatient
+    addPatient,
+    addEntry
 };

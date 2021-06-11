@@ -9,11 +9,22 @@ router.get('/', (_req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-        const patient = patientService.getPatientById(req.params.id);
-        if (patient) {
+    const patient = patientService.getPatientById(req.params.id);
+    if (patient) {
         res.send(patient);
-        } else {
-        res.status(404).json(({error: 'patient not found'}));
+    } else {
+        res.status(404).json(({ error: 'patient not found' }));
+    }
+});
+
+router.post('/:id/entries', (req, res) => {
+    const id = req.params.id;
+    const entry = req.body;
+    try {
+        const patientwithNewEntry = patientService.addEntry(id, entry);
+        res.json(patientwithNewEntry);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
 });
 
@@ -30,7 +41,7 @@ router.post('/', (req, res) => {
         });
         res.json(newPatient);
     } catch (error) {
-        res.status(400).json({error: error.message});
+        res.status(400).json({ error: error.message });
     }
 });
 
