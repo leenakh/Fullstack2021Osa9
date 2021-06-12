@@ -1,4 +1,4 @@
-import { NewPatient, Gender, BaseEntry, Entry, Type, Discharge, HealthCheckRating, SickLeave } from './types';
+import { NewPatient, Gender, BaseEntry, Entry, Type, Discharge, SickLeave } from './types';
 
 const isString = (text: unknown): text is string => {
     return typeof text === 'string' || text instanceof String;
@@ -142,7 +142,7 @@ const parseDischarge = (discharge: Discharge): Discharge => {
     return discharge;
 };
 
-const parseHealthCheckRating = (rating: HealthCheckRating): HealthCheckRating => {
+const parseHealthCheckRating = (rating: number): number => {
     if (!rating) {
         throw new Error('invalid rating');
     }

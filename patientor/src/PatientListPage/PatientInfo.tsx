@@ -1,5 +1,6 @@
 import React from "react";
 import { Diagnosis, Entry, HospitalEntry, HealthCheckEntry, OccupationalHealthCareEntry, Gender, Patient, HealthCheckRating } from "../types";
+import { AddEntryForm, EntryFormValues } from './AddEntryForm';
 import { useParams } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import { apiBaseUrl } from "../constants";
@@ -112,6 +113,21 @@ const PatientInfo = () => {
         void fetchPatient();
     }, [dispatch]);
 
+    const submitNewEntry = async (values: EntryFormValues) => {
+        try {
+            const { data: newPatient } = await axios.post<Patient>(
+                `${apiBaseUrl}/patients/${id}/entries`, values
+            );
+            dispatch({ type: "SET_PATIENT", payload: newPatient });
+        } catch (e) {
+            console.log(e.response.data);
+        }
+    };
+
+    const doSomething = () => {
+        console.log('do something');
+    };
+
     if (patient) {
         return (<div>
             <div><h3>{patient.name}    <ShowGender gender={patient.gender} /></h3></div>
@@ -119,6 +135,7 @@ const PatientInfo = () => {
             <div>Occupation: {patient.occupation}</div>
             <br />
             <div><h5>Entries: </h5>{patient.entries.map(e => <div key={e.id} style={{ borderStyle: 'solid', borderWidth: 2, borderRadius: 5, borderColor: 'gainsboro', padding: 5, margin: 5 }}><ShowEntry key={e.id} entry={e} /> <ShowCodes entry={e} /></div>)}</div>
+            <div><AddEntryForm onSubmit={submitNewEntry} onCancel={doSomething} /></div>
         </div>);
     }
     return null;

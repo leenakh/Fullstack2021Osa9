@@ -41,7 +41,7 @@ const addPatient = (patient: NewPatient): NonSensitivePatient => {
     return patientToReturn;
 };
 
-const addEntry = (id: string, entry: Entry): Patient | undefined => {
+const addEntry = (id: string, entry: Entry): Patient => {
     const patient = patientData.find(p => p.id === id);
     if (!patient) {
         throw new Error('patient missing');
