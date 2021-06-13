@@ -4,7 +4,7 @@ import { AddEntryForm, EntryFormValues } from './AddEntryForm';
 import { useParams } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import { apiBaseUrl } from "../constants";
-import { useStateValue } from "../state";
+import { setPatient, useStateValue } from "../state";
 import { Container, Icon } from 'semantic-ui-react';
 import axios from "axios";
 
@@ -108,7 +108,7 @@ const PatientInfo = () => {
     React.useEffect(() => {
         const fetchPatient = async () => {
             const { data: returnedPatient } = await axios.get<Patient>(`${apiBaseUrl}/patients/${id}`);
-            dispatch({ type: "SET_PATIENT", payload: returnedPatient });
+            dispatch(setPatient(returnedPatient));
         };
         void fetchPatient();
     }, [dispatch]);
@@ -118,7 +118,7 @@ const PatientInfo = () => {
             const { data: newPatient } = await axios.post<Patient>(
                 `${apiBaseUrl}/patients/${id}/entries`, values
             );
-            dispatch({ type: "SET_PATIENT", payload: newPatient });
+            dispatch(setPatient(newPatient));
         } catch (e) {
             console.log(e.response.data);
         }
@@ -135,6 +135,7 @@ const PatientInfo = () => {
             <div>Occupation: {patient.occupation}</div>
             <br />
             <div><h5>Entries: </h5>{patient.entries.map(e => <div key={e.id} style={{ borderStyle: 'solid', borderWidth: 2, borderRadius: 5, borderColor: 'gainsboro', padding: 5, margin: 5 }}><ShowEntry key={e.id} entry={e} /> <ShowCodes entry={e} /></div>)}</div>
+            <h3>Create new entry:</h3>
             <div><AddEntryForm onSubmit={submitNewEntry} onCancel={doSomething} /></div>
         </div>);
     }

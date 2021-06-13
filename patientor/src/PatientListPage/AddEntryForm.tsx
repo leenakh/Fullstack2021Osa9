@@ -37,8 +37,28 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
         healthCheckRating: HealthCheckRating.Healthy
       }}
       onSubmit={onSubmit}
+      validate={values => {
+        const requiredError = "Field is required";
+        const errors: { [field: string]: string } = {};
+        if (!values.description) {
+          errors.description = requiredError;
+        }
+        if (!values.date) {
+          errors.date = requiredError;
+        }
+        if (!values.specialist) {
+          errors.specialist = requiredError;
+        }
+        if (!values.type) {
+          errors.type = requiredError;
+        }
+        if (!values.healthCheckRating) {
+          errors.healthCheckRating = requiredError;
+        }
+        return errors;
+      }}
     >
-      {({ dirty, setFieldValue, setFieldTouched }) => {
+      {({ isValid, dirty, setFieldValue, setFieldTouched }) => {
         return (
           <Form className="form ui">
             <Field
@@ -71,7 +91,7 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
               name="entryType"
               options={entryOptions}
             />
-            <DiagnosisSelection setFieldValue={setFieldValue} setFieldTouched={setFieldTouched} diagnoses={Object.values(diagnoses)} />
+            <DiagnosisSelection setFieldValue={setFieldValue} setFieldTouched={setFieldTouched} diagnoses={Object.values(diagnoses)}  />
             <Grid>
               <Grid.Column floated="left" width={5}>
                 <Button type="button" onClick={onCancel} color="red">
@@ -83,7 +103,7 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
                   type="submit"
                   floated="right"
                   color="green"
-                  disabled={!dirty}
+                  disabled={!dirty || !isValid}
                 >
                   Add
                 </Button>
